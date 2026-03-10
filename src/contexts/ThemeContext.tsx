@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Appearance, ColorSchemeName } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Appearance } from 'react-native';
+import { mmkvStorage } from '@core/storage/mmkv';
 import { lightTheme, darkTheme, Theme } from '../themes';
+import { STORAGE_KEYS } from '@core/constants';
 
 interface ThemeContextType {
   theme: Theme;
@@ -12,10 +13,15 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const THEME_KEY = 'app_theme';
-
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [themeType, setThemeType] = useState<'light' | 'dark' | 'system'>('system');
+  const savedTheme = mmkvStorage.getString(STORAGE_KEYS.THEME) as
+    | 'light'
+    | 'dark'
+    | 'system'
+    | undefined;
+  const [themeType, setThemeType] = useState<'light' | 'dark' | 'system'>(
+    savedTheme ?? 'system',
+  );
   const systemColorScheme = Appearance.getColorScheme();
 
   const getTheme = (): Theme => {
@@ -28,32 +34,22 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const theme = getTheme();
   const isDark = theme === darkTheme;
 
-  const toggleTheme = async () => {
+  const toggleTheme = () => {
     const newType = themeType === 'light' ? 'dark' : 'light';
     setThemeType(newType);
-    await AsyncStorage.setItem(THEME_KEY, newType);
+    mmkvStorage.setString(STORAGE_KEYS.THEME, newType);
   };
 
-  const setSystemTheme = async () => {
+  const setSystemTheme = () => {
     setThemeType('system');
-    await AsyncStorage.setItem(THEME_KEY, 'system');
+    mmkvStorage.setString(STORAGE_KEYS.THEME, 'system');
   };
 
   useEffect(() => {
-    const loadTheme = async () => {
-      const savedTheme = await AsyncStorage.getItem(THEME_KEY);
-      if (savedTheme) {
-        setThemeType(savedTheme as 'light' | 'dark' | 'system');
-      }
-    };
-    loadTheme();
-  }, []);
-
-  useEffect(() => {
-    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+    const subscription = Appearance.addChangeListener(() => {
       if (themeType === 'system') {
-        // Force re-render by updating state, but since theme is computed, maybe not needed
-        // But to trigger, perhaps use a dummy state
+        // Force re-render by toggling a state update
+        setThemeType('system');
       }
     });
     return () => subscription?.remove();
