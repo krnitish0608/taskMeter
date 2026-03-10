@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "190265016581",
+    "project_id": "taskmeter-prod",
+    "storage_bucket": "taskmeter-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:190265016581:android:16e92a63093f346a2cf76c",
+        "android_client_info": {
+          "package_name": "com.taskmeter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBv-xjHS5WKd3IkryCcRx_KDItBZLgerOQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
