@@ -1,22 +1,55 @@
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
+/**
+ * Error handling utility to provide better diagnostics for Firebase errors
+ */
+const handleFirebaseError = (error: any): Error => {
+  if (error?.code) {
+    // Enhanced error messages for common Firebase Auth errors
+    const errorMessages: Record<string, string> = {
+      'auth/configuration-not-found': 'Firebase is not properly initialized. Please check if google-services.json (Android) or GoogleService-Info.plist (iOS) is configured correctly.',
+      'auth/weak-password': 'Password is too weak (minimum 6 characters required)',
+      'auth/email-already-in-use': 'Email address is already in use',
+      'auth/invalid-email': 'Email address is invalid',
+      'auth/user-not-found': 'User not found',
+      'auth/wrong-password': 'Incorrect password',
+    };
+    
+    const message = errorMessages[error.code] || error.message;
+    return new Error(`${error.code}: ${message}`);
+  }
+  return error;
+};
+
 export const authService = {
   signUp: async (
     email: string,
     password: string,
   ): Promise<FirebaseAuthTypes.UserCredential> => {
-    return auth().createUserWithEmailAndPassword(email, password);
+    try {
+      return await auth().createUserWithEmailAndPassword(email, password);
+    } catch (error: any) {
+      throw handleFirebaseError(error);
+    }
   },
 
   login: async (
     email: string,
     password: string,
   ): Promise<FirebaseAuthTypes.UserCredential> => {
-    return auth().signInWithEmailAndPassword(email, password);
+    try {
+      return await auth().signInWithEmailAndPassword(email, password);
+    } catch (error: any) {
+      throw handleFirebaseError(error);
+    }
   },
 
   logout: async (): Promise<void> => {
-    return auth().signOut();
+    try {
+      return await auth().signOut();
+    } catch (error: any) {
+      throw handleFirebaseError(error);
+    }
   },
 
   getCurrentUser: (): FirebaseAuthTypes.User | null => {
