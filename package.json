@@ -8,9 +8,9 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "dev": "cp .env.development .env && cp android/app/google-services.dev.json android/app/google-services.json && cp ios/taskMeter/GoogleService-Info.dev.plist ios/taskMeter/GoogleService-Info.plist && npm run start",
-    "staging": "cp .env.staging .env && cp android/app/google-services.dev.json android/app/google-services.json && cp ios/taskMeter/GoogleService-Info.dev.plist ios/taskMeter/GoogleService-Info.plist && npm run start",
-    "prod": "cp .env.production .env && cp android/app/google-services.prod.json android/app/google-services.json && cp ios/taskMeter/GoogleService-Info.prod.plist ios/taskMeter/GoogleService-Info.plist && npm run start"
+    "dev": "cp .env.development .env && cp android/app/google-services.dev.json android/app/google-services.json  && npm run start",
+    "staging": "cp .env.staging .env && cp android/app/google-services.dev.json android/app/google-services.json  && npm run start",
+    "prod": "cp .env.production .env && cp android/app/google-services.prod.json android/app/google-services.json && npm run start"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
