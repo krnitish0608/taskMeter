@@ -29,10 +29,31 @@ export const loadTasks = createAsyncThunk(
   'tasks/loadTasks',
   async (_, { getState, rejectWithValue }) => {
     try {
-      const userId = getUserId(getState() as RootState);
-      return await taskDbService.getAllTasks(userId);
+      const state = getState() as RootState;
+      const userId = state.auth.user?.uid;
+      
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error('Task loading timed out')),
+          8000, // 8 second timeout
+        ),
+      );
+
+      // Race between actual loading and timeout
+      const results = await Promise.race([
+        taskDbService.getAllTasks(userId),
+        timeoutPromise as Promise<TaskRecord[]>,
+      ]);
+
+      return results;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      console.error('Error loading tasks:', error);
+      return rejectWithValue(error.message || 'Failed to load tasks');
     }
   },
 );
