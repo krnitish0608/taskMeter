@@ -28,7 +28,7 @@ const SettingsIcon = ({ color, size }: { color: string; size: number }) => (
 );
 
 const HomeTabs = () => {
-  const { theme, isDark } = useTheme();
+  const { theme } = useTheme();
 
   return (
     <Tab.Navigator
