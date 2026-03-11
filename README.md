@@ -362,38 +362,3 @@ open ios/taskMeter.xcworkspace
 1. **Login Notification**: Sign in to see welcome message
 2. **Task Completion**: Mark any task as complete
 3. **Due Date Reminder**: Create a task with a due date (set 1-2 minutes ahead for testing)
-
----
-
-## Troubleshooting
-
-### **Android Issues**
-
-```bash
-# Clean build
-cd android && ./gradlew clean && cd ..
-
-# Clear Metro cache
-npm start -- --reset-cache
-```
-
-### **iOS Issues**
-
-```bash
-# Reinstall pods
-cd ios && pod deintegrate && pod install && cd ..
-
-# Clean build
-rm -rf ios/build
-```
-
-### **Metro Issues**
-
-```bash
-# Clear watchman
-watchman watch-del-all
-
-# Clear Metro cache
-rm -rf $TMPDIR/metro-*
-rm -rf $TMPDIR/haste-*
-```
