@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authService } from '@modules/auth/services/authService';
+import { notificationService } from '@modules/notifications/services/notificationService';
 
 interface AuthUser {
   uid: string;
@@ -97,6 +98,12 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
+        
+        // Show login success notification
+        notificationService.displayLocalNotification(
+          '👋 Welcome Back!',
+          `Successfully logged in as ${action.payload.email}`,
+        ).catch(err => console.error('Failed to show login notification:', err));
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;

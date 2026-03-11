@@ -42,7 +42,47 @@ export const RootNavigator = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    notificationService.initialize();
+    // Initialize notifications and FCM
+    const setup = async () => {
+      await notificationService.initialize();
+      
+      // Register for Firebase Cloud Messaging
+      const fcmToken = await notificationService.registerForFCM();
+      if (fcmToken) {
+        console.log('FCM registered successfully');
+        // TODO: Send token to your backend server
+      }
+    };
+    
+    setup();
+
+    // Listen for foreground messages
+    const unsubscribeForeground = notificationService.onForegroundMessage(
+      message => {
+        console.log('Foreground notification received:', message);
+      },
+    );
+
+    // Listen for notification press
+    const unsubscribePress = notificationService.onNotificationPress(
+      notification => {
+        console.log('Notification tapped:', notification);
+        // TODO: Navigate to specific screen based on notification data
+      },
+    );
+
+    // Check if app was opened from a notification
+    notificationService.getInitialNotification().then(notification => {
+      if (notification) {
+        console.log('App opened from notification:', notification);
+        // TODO: Navigate to specific screen
+      }
+    });
+
+    return () => {
+      unsubscribeForeground();
+      unsubscribePress();
+    };
   }, []);
 
   const navigationTheme = {

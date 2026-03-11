@@ -87,7 +87,8 @@ export const notificationService = {
   },
 
   /**
-   * (Bonus) Register for Firebase Cloud Messaging and return the token.
+   * Register for Firebase Cloud Messaging and return the token.
+   * Save this token to your backend to send targeted push notifications.
    */
   registerForFCM: async (): Promise<string | null> => {
     try {
@@ -97,20 +98,68 @@ export const notificationService = {
         authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
       if (!enabled) {
+        console.log('FCM permission not granted');
         return null;
       }
 
       const token = await messaging().getToken();
+      console.log('FCM Token:', token);
+      // TODO: Send this token to your backend server to store for the user
       return token;
-    } catch {
+    } catch (error) {
+      console.error('Error getting FCM token:', error);
       return null;
     }
   },
 
   /**
-   * Listen for foreground FCM messages.
+   * Listen for foreground FCM messages and display them.
    */
   onForegroundMessage: (callback: (message: any) => void) => {
-    return messaging().onMessage(callback);
+    return messaging().onMessage(async remoteMessage => {
+      console.log('Foreground FCM message received:', remoteMessage);
+      
+      // Display notification in foreground
+      await notifee.displayNotification({
+        title: remoteMessage.notification?.title || 'New Notification',
+        body: remoteMessage.notification?.body || '',
+        android: {
+          channelId: CHANNEL_ID,
+          importance: AndroidImportance.HIGH,
+          pressAction: { id: 'default' },
+        },
+        ios: {
+          sound: 'default',
+        },
+        data: remoteMessage.data,
+      });
+      
+      // Call the callback
+      callback(remoteMessage);
+    });
+  },
+
+  /**
+   * Handle notification press/interaction.
+   */
+  onNotificationPress: (callback: (notification: any) => void) => {
+    return notifee.onForegroundEvent(({ type, detail }) => {
+      if (type === 1) { // PRESS event
+        console.log('Notification pressed:', detail.notification);
+        callback(detail.notification);
+      }
+    });
+  },
+
+  /**
+   * Check for initial notification (app opened from notification).
+   */
+  getInitialNotification: async () => {
+    const initialNotification = await notifee.getInitialNotification();
+    if (initialNotification) {
+      console.log('App opened from notification:', initialNotification);
+      return initialNotification;
+    }
+    return null;
   },
 };
