@@ -18,7 +18,6 @@ const SettingsScreen = React.lazy(
 const Tab = createBottomTabNavigator<AppTabParamList>();
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
-// Tab icon components
 const TasksIcon = ({ color, size }: { color: string; size: number }) => (
   <Icon name="checkbox-outline" size={size} color={color} />
 );

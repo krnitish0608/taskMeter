@@ -46,11 +46,9 @@ export const RootNavigator = () => {
     const setup = async () => {
       await notificationService.initialize();
       
-      // Register for Firebase Cloud Messaging
       const fcmToken = await notificationService.registerForFCM();
       if (fcmToken) {
         console.log('FCM registered successfully');
-        // TODO: Send token to your backend server
       }
     };
     
@@ -67,7 +65,6 @@ export const RootNavigator = () => {
     const unsubscribePress = notificationService.onNotificationPress(
       notification => {
         console.log('Notification tapped:', notification);
-        // TODO: Navigate to specific screen based on notification data
       },
     );
 
@@ -75,7 +72,6 @@ export const RootNavigator = () => {
     notificationService.getInitialNotification().then(notification => {
       if (notification) {
         console.log('App opened from notification:', notification);
-        // TODO: Navigate to specific screen
       }
     });
 

@@ -4,29 +4,22 @@ import notifee, {
   AndroidImportance,
 } from '@notifee/react-native';
 import messaging from '@react-native-firebase/messaging';
-import { Platform } from 'react-native';
 
 const CHANNEL_ID = 'task-reminders';
 
 export const notificationService = {
-  /**
-   * Request notification permissions and create the Android channel.
-   */
+  // Request notification permissions and create the Android channel.
   initialize: async (): Promise<void> => {
-    // Create Android notification channel
     await notifee.createChannel({
       id: CHANNEL_ID,
       name: 'Task Reminders',
       importance: AndroidImportance.HIGH,
     });
 
-    // Request permissions
     await notifee.requestPermission();
   },
 
-  /**
-   * Schedule a local push notification for a task reminder.
-   */
+  // Schedule a local push notification for a task reminder.
   scheduleTaskReminder: async (
     taskId: string,
     title: string,
@@ -58,16 +51,12 @@ export const notificationService = {
     return notificationId;
   },
 
-  /**
-   * Cancel a previously scheduled notification.
-   */
+  // Cancel a previously scheduled notification.
   cancelTaskReminder: async (taskId: string): Promise<void> => {
     await notifee.cancelNotification(`task_${taskId}`);
   },
 
-  /**
-   * Display an immediate local notification.
-   */
+  // Display an immediate local notification.
   displayLocalNotification: async (
     title: string,
     body: string,
@@ -86,10 +75,7 @@ export const notificationService = {
     });
   },
 
-  /**
-   * Register for Firebase Cloud Messaging and return the token.
-   * Save this token to your backend to send targeted push notifications.
-   */
+  // Register for Firebase Cloud Messaging and return the token.
   registerForFCM: async (): Promise<string | null> => {
     try {
       const authStatus = await messaging().requestPermission();
@@ -104,7 +90,6 @@ export const notificationService = {
 
       const token = await messaging().getToken();
       console.log('FCM Token:', token);
-      // TODO: Send this token to your backend server to store for the user
       return token;
     } catch (error) {
       console.error('Error getting FCM token:', error);
@@ -112,9 +97,7 @@ export const notificationService = {
     }
   },
 
-  /**
-   * Listen for foreground FCM messages and display them.
-   */
+  // Listen for foreground FCM messages and display them.
   onForegroundMessage: (callback: (message: any) => void) => {
     return messaging().onMessage(async remoteMessage => {
       console.log('Foreground FCM message received:', remoteMessage);
@@ -139,9 +122,7 @@ export const notificationService = {
     });
   },
 
-  /**
-   * Handle notification press/interaction.
-   */
+  // Handle notification press/interaction.
   onNotificationPress: (callback: (notification: any) => void) => {
     return notifee.onForegroundEvent(({ type, detail }) => {
       if (type === 1) { // PRESS event
@@ -151,9 +132,7 @@ export const notificationService = {
     });
   },
 
-  /**
-   * Check for initial notification (app opened from notification).
-   */
+  //Check for initial notification (app opened from notification).
   getInitialNotification: async () => {
     const initialNotification = await notifee.getInitialNotification();
     if (initialNotification) {

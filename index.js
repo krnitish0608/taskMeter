@@ -1,16 +1,9 @@
-/**
- * @format
- */
-
 import { AppRegistry } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import notifee from '@notifee/react-native';
 
-/**
- * CRITICAL: Initialize Firebase before rendering the app.
- * This ensures the google-services.json configuration is loaded
- * before any Firebase service (Auth, Firestore, etc.) is used.
- */
+//Initialize Firebase before rendering the app.
+ 
 import './src/core/firebase/init';
 
 import App from './App';
@@ -26,7 +19,7 @@ messaging().setBackgroundMessageHandler(async remoteMessage => {
     body: remoteMessage.notification?.body || '',
     android: {
       channelId: 'task-reminders',
-      importance: 4, // HIGH
+      importance: 4,
       pressAction: { id: 'default' },
     },
     ios: {

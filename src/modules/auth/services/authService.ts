@@ -1,11 +1,7 @@
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
-/**
- * Error handling utility to provide better diagnostics for Firebase errors
- */
 const handleFirebaseError = (error: any): Error => {
   if (error?.code) {
-    // Enhanced error messages for common Firebase Auth errors
     const errorMessages: Record<string, string> = {
       'auth/configuration-not-found': 'Firebase is not properly initialized. Please check if google-services.json (Android) or GoogleService-Info.plist (iOS) is configured correctly.',
       'auth/weak-password': 'Password is too weak (minimum 6 characters required)',

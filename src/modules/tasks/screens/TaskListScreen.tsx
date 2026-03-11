@@ -28,9 +28,8 @@ import type { AppStackParamList } from '@core/types/navigation';
 
 type TaskListNavProp = NativeStackNavigationProp<AppStackParamList>;
 
-const ITEM_HEIGHT = 85; // approximate height for getItemLayout
+const ITEM_HEIGHT = 85; 
 
-/** Animated sync banner shown at the top of the screen */
 const SyncBanner = React.memo(
   ({ syncing, primaryColor }: { syncing: boolean; primaryColor: string }) => {
     const spinValue = useRef(new Animated.Value(0)).current;

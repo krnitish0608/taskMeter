@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useAppDispatch } from '@core/hooks/useAppDispatch';
 import { useAppSelector } from '@core/hooks/useAppSelector';
