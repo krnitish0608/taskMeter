@@ -102,7 +102,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({
 
         <TextInput
           style={[styles.input, emailError ? styles.inputError : null]}
-          placeholder="Email (Gmail only)"
+          placeholder="Email"
           placeholderTextColor={theme.colors.textSecondary}
           value={email}
           onChangeText={handleEmailChange}
