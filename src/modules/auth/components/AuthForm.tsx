@@ -37,12 +37,57 @@ export const AuthForm: React.FC<AuthFormProps> = ({
   const styles = makeStyles(theme);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  const validateGmail = (emailValue: string): boolean => {
+    const trimmedEmail = emailValue.trim().toLowerCase();
+    
+    // Check if email is empty
+    if (!trimmedEmail) {
+      setEmailError('');
+      return false;
+    }
+
+    // Check if email ends with @gmail.com
+    if (!trimmedEmail.endsWith('@gmail.com')) {
+      setEmailError('Only Gmail addresses are accepted');
+      return false;
+    }
+
+    // Validate email format
+    const emailRegex = /^[a-z0-9](\.?[a-z0-9]){1,}@gmail\.com$/i;
+    if (!emailRegex.test(trimmedEmail)) {
+      setEmailError('Please enter a valid Gmail address');
+      return false;
+    }
+
+    setEmailError('');
+    return true;
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (value.trim()) {
+      validateGmail(value);
+    } else {
+      setEmailError('');
+    }
+  };
 
   const handleSubmit = () => {
     const trimmedEmail = email.trim();
+    
     if (!trimmedEmail || !password) {
+      if (!trimmedEmail) {
+        setEmailError('Email is required');
+      }
       return;
     }
+
+    if (!validateGmail(trimmedEmail)) {
+      return;
+    }
+
     onSubmit(trimmedEmail, password);
   };
 
@@ -56,16 +101,17 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <TextInput
-          style={styles.input}
-          placeholder="Email"
+          style={[styles.input, emailError ? styles.inputError : null]}
+          placeholder="Email (Gmail only)"
           placeholderTextColor={theme.colors.textSecondary}
           value={email}
-          onChangeText={setEmail}
+          onChangeText={handleEmailChange}
           autoCapitalize="none"
           keyboardType="email-address"
           textContentType="emailAddress"
           autoComplete="email"
         />
+        {emailError ? <Text style={styles.validationError}>{emailError}</Text> : null}
 
         <TextInput
           style={styles.input}
@@ -79,9 +125,9 @@ export const AuthForm: React.FC<AuthFormProps> = ({
         />
 
         <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={[styles.button, (loading || emailError) && styles.buttonDisabled]}
           onPress={handleSubmit}
-          disabled={loading}
+          disabled={loading || !!emailError}
           activeOpacity={0.7}>
           {loading ? (
             <ActivityIndicator color="#FFFFFF" />
@@ -135,6 +181,18 @@ const makeStyles = (theme: Theme) =>
       paddingVertical: 14,
       fontSize: 16,
       marginBottom: theme.spacing.medium,
+    },
+    inputError: {
+      borderColor: theme.colors.error,
+      borderWidth: 2,
+      marginBottom: 4,
+    },
+    validationError: {
+      color: theme.colors.error,
+      fontSize: 12,
+      marginBottom: theme.spacing.small,
+      marginTop: -8,
+      marginLeft: 4,
     },
     button: {
       backgroundColor: theme.colors.primary,
