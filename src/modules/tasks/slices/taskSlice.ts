@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { taskDbService, TaskRecord } from '@modules/tasks/services/taskDbService';
 import { taskSyncService } from '@modules/tasks/services/taskSyncService';
 import type { RootState } from '@app/store';
@@ -37,7 +37,7 @@ export const loadTasks = createAsyncThunk(
       }
 
       // Create a timeout promise
-      const timeoutPromise = new Promise((_, reject) =>
+      const timeoutPromise = new Promise((_resolve, reject) =>
         setTimeout(
           () => reject(new Error('Task loading timed out')),
           8000, // 8 second timeout
@@ -130,16 +130,24 @@ export const deleteTask = createAsyncThunk(
 
 export const syncTasks = createAsyncThunk(
   'tasks/syncTasks',
-  async (_, { getState, dispatch, rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
       const userId = getUserId(getState() as RootState);
-      // Push local → Firestore
-      await taskSyncService.syncPendingToFirestore(userId);
-      // Pull Firestore → local
-      await taskSyncService.pullFromFirestore(userId);
-      // Reload from SQLite as source of truth
-      const tasks = await taskDbService.getAllTasks(userId);
-      return tasks;
+
+      const timeoutPromise = new Promise<never>((_resolve, reject) =>
+        setTimeout(() => reject(new Error('Sync timed out')), 15000),
+      );
+
+      const syncWork = async () => {
+        // Push local → Firestore
+        await taskSyncService.syncPendingToFirestore(userId);
+        // Pull Firestore → local
+        await taskSyncService.pullFromFirestore(userId);
+        // Reload from SQLite as source of truth
+        return await taskDbService.getAllTasks(userId);
+      };
+
+      return await Promise.race([syncWork(), timeoutPromise]);
     } catch (error: any) {
       return rejectWithValue(error.message);
     }

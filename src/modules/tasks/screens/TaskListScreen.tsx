@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
-  ActivityIndicator,
+  Animated,
+  Easing,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -29,12 +30,81 @@ type TaskListNavProp = NativeStackNavigationProp<AppStackParamList>;
 
 const ITEM_HEIGHT = 85; // approximate height for getItemLayout
 
+/** Animated sync banner shown at the top of the screen */
+const SyncBanner = React.memo(
+  ({ syncing, primaryColor }: { syncing: boolean; primaryColor: string }) => {
+    const spinValue = useRef(new Animated.Value(0)).current;
+    const animationRef = useRef<Animated.CompositeAnimation | null>(null);
+
+    useEffect(() => {
+      if (syncing) {
+        spinValue.setValue(0);
+        animationRef.current = Animated.loop(
+          Animated.timing(spinValue, {
+            toValue: 1,
+            duration: 1000,
+            easing: Easing.linear,
+            useNativeDriver: true,
+          }),
+        );
+        animationRef.current.start();
+      } else {
+        animationRef.current?.stop();
+        spinValue.setValue(0);
+      }
+      return () => {
+        animationRef.current?.stop();
+      };
+    }, [syncing, spinValue]);
+
+    const spin = spinValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0deg', '360deg'],
+    });
+
+    if (!syncing) {
+      return null;
+    }
+
+    return (
+      <View style={[bannerStyles.syncBanner, { backgroundColor: primaryColor }]}>
+        <Animated.Text
+          style={[bannerStyles.syncIcon, { transform: [{ rotate: spin }] }]}>
+          ⟳
+        </Animated.Text>
+        <Text style={bannerStyles.syncText}>Syncing with cloud...</Text>
+      </View>
+    );
+  },
+);
+
+const bannerStyles = StyleSheet.create({
+  syncBanner: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  syncIcon: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginRight: 6,
+    color: '#FFFFFF',
+  },
+  syncText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+});
+
 const TaskListScreen = () => {
   const dispatch = useAppDispatch();
   const navigation = useNavigation<TaskListNavProp>();
   const { theme } = useTheme();
   const styles = makeStyles(theme);
-  const { tasks, loading, syncing } = useAppSelector(state => state.tasks);
+  const { tasks, syncing } = useAppSelector(state => state.tasks);
   const isConnected = useNetworkStatus();
 
   useEffect(() => {
@@ -114,14 +184,6 @@ const TaskListScreen = () => {
     [styles],
   );
 
-  if (loading && tasks.length === 0) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
       {!isConnected && (
@@ -129,6 +191,8 @@ const TaskListScreen = () => {
           <Text style={styles.offlineText}>Offline – changes will sync when connected</Text>
         </View>
       )}
+
+      <SyncBanner syncing={syncing} primaryColor={theme.colors.primary} />
 
       <FlatList
         data={tasks}
@@ -139,7 +203,7 @@ const TaskListScreen = () => {
         ListEmptyComponent={ListEmptyComponent}
         refreshControl={
           <RefreshControl
-            refreshing={syncing}
+            refreshing={false}
             onRefresh={handleRefresh}
             tintColor={theme.colors.primary}
           />
@@ -162,10 +226,6 @@ const makeStyles = (theme: Theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
-    },
-    centered: {
-      justifyContent: 'center',
-      alignItems: 'center',
     },
     list: {
       paddingTop: theme.spacing.small,
