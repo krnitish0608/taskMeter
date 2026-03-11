@@ -40,17 +40,17 @@ The application follows a **feature-based modular architecture** combined with *
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Presentation Layer                    │
+│                    Presentation Layer                   │
 │  (Screens, Components, Navigation, Themes)              │
 ├─────────────────────────────────────────────────────────┤
-│                   Business Logic Layer                   │
-│  (Redux Slices, Async Thunks, State Management)        │
+│                   Business Logic Layer                  │
+│  (Redux Slices, Async Thunks, State Management)         │
 ├─────────────────────────────────────────────────────────┤
-│                     Service Layer                        │
-│  (Auth, Tasks, Notifications, Database, Firebase)      │
+│                     Service Layer                       │
+│  (Auth, Tasks, Notifications, Database, Firebase)       │
 ├─────────────────────────────────────────────────────────┤
-│                      Data Layer                          │
-│  SQLite (Local) | Firestore (Cloud) | MMKV (Cache)     │
+│                      Data Layer                         │
+│  SQLite (Local) | Firestore (Cloud) | MMKV (Cache)      │
 └─────────────────────────────────────────────────────────┘
 ```
 
