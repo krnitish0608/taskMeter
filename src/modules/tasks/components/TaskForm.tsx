@@ -33,12 +33,63 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
   const [dueDate, setDueDate] = useState(initialDueDate ?? '');
+  const [dateError, setDateError] = useState('');
+
+  const handleDateChange = (value: string) => {
+    // Only allow numbers and hyphens
+    const sanitized = value.replace(/[^0-9-]/g, '');
+    setDueDate(sanitized);
+
+    // Clear error if empty
+    if (!sanitized) {
+      setDateError('');
+      return;
+    }
+
+    // Validate date format (YYYY-MM-DD)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (sanitized.length === 10) {
+      if (!dateRegex.test(sanitized)) {
+        setDateError('Invalid date format. Use YYYY-MM-DD');
+        return;
+      }
+
+      // Check if it's a valid date
+      const selectedDate = new Date(sanitized);
+      if (isNaN(selectedDate.getTime())) {
+        setDateError('Invalid date');
+        return;
+      }
+
+      // Check if date is in the past
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      selectedDate.setHours(0, 0, 0, 0);
+
+      if (selectedDate < today) {
+        setDateError('Date cannot be in the past');
+        return;
+      }
+
+      setDateError('');
+    } else if (sanitized.length > 10) {
+      setDateError('Invalid date format');
+    } else {
+      setDateError('');
+    }
+  };
 
   const handleSubmit = () => {
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
       return;
     }
+
+    // Validate date if provided
+    if (dueDate && dateError) {
+      return;
+    }
+
     onSubmit({
       title: trimmedTitle,
       description: description.trim(),
@@ -75,18 +126,20 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 
         <Text style={styles.label}>Due Date (YYYY-MM-DD)</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, dateError ? styles.inputError : null]}
           value={dueDate}
-          onChangeText={setDueDate}
+          onChangeText={handleDateChange}
           placeholder="2026-03-15"
           placeholderTextColor={theme.colors.textSecondary}
           keyboardType="numbers-and-punctuation"
+          maxLength={10}
         />
+        {dateError ? <Text style={styles.errorText}>{dateError}</Text> : null}
 
         <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={[styles.button, (loading || dateError) && styles.buttonDisabled]}
           onPress={handleSubmit}
-          disabled={loading}
+          disabled={loading || !!dateError}
           activeOpacity={0.7}>
           <Text style={styles.buttonText}>{submitLabel}</Text>
         </TouchableOpacity>
@@ -120,6 +173,16 @@ const makeStyles = (theme: Theme) =>
       paddingHorizontal: 16,
       paddingVertical: 14,
       fontSize: 16,
+    },
+    inputError: {
+      borderColor: theme.colors.error,
+      borderWidth: 2,
+    },
+    errorText: {
+      color: theme.colors.error,
+      fontSize: 12,
+      marginTop: 4,
+      marginLeft: 4,
     },
     textArea: {
       minHeight: 100,
