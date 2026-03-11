@@ -9,7 +9,6 @@ A feature-rich task management application built with React Native, Firebase, an
 - [Running the App](#running-the-app)
 - [Features](#features)
 - [Known Limitations](#known-limitations)
-- [Project Structure](#project-structure)
 
 ---
 
@@ -328,59 +327,6 @@ open ios/taskMeter.xcworkspace
 2. **Image Optimization**
    - App icons use static PNG files
    - No SVG support for adaptive scaling
-
----
-
-## Project Structure
-
-```
-taskMeter/
-├── android/                    # Android native code
-│   └── app/
-│       ├── google-services.dev.json
-│       └── google-services.prod.json
-├── ios/                        # iOS native code
-│   └── taskMeter/
-│       ├── GoogleService-Info-dev.plist
-│       └── GoogleService-Info-prod.plist
-├── src/
-│   ├── app/                    # Redux store configuration
-│   ├── config/                 # App configuration
-│   ├── contexts/               # React contexts (Theme)
-│   ├── core/                   # Core utilities
-│   │   ├── constants/          # App constants
-│   │   ├── database/           # SQLite setup
-│   │   ├── firebase/           # Firebase initialization
-│   │   ├── hooks/              # Custom React hooks
-│   │   ├── storage/            # MMKV storage
-│   │   └── types/              # TypeScript types
-│   ├── modules/                # Feature modules
-│   │   ├── auth/               # Authentication module
-│   │   │   ├── components/     # Auth-specific UI components
-│   │   │   ├── screens/        # Login, SignUp, EmailVerification
-│   │   │   ├── services/       # Auth service (Firebase Auth)
-│   │   │   └── slices/         # Redux slices for auth state
-│   │   ├── tasks/              # Task management module
-│   │   │   ├── components/     # Task-specific UI components
-│   │   │   ├── screens/        # TaskList, AddEditTask
-│   │   │   ├── services/       # Task services (SQLite, Firestore)
-│   │   │   └── slices/         # Redux slices for task state
-│   │   ├── notifications/      # Notification module
-│   │   │   └── services/       # Notification service (Notifee, FCM)
-│   │   └── settings/           # Settings module
-│   │       └── screens/        # Settings screen
-│   ├── navigation/             # Navigation configuration
-│   │   ├── AppStack.tsx        # Main app navigation (tabs)
-│   │   ├── AuthStack.tsx       # Auth navigation (login, signup)
-│   │   └── RootNavigator.tsx   # Root navigator with auth state
-│   └── themes/                 # Theme configuration
-├── .env.development            # Development environment variables
-├── .env.staging                # Staging environment variables
-├── .env.production             # Production environment variables
-├── index.js                    # Entry point with FCM background handler
-├── App.tsx                     # Root App component
-└── package.json                # Dependencies and scripts
-```
 
 ---
 
